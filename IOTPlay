@@ -1,0 +1,14 @@
+#!/bin/bash 
+
+# Simple version...
+
+IOT_ROOT=~/bin/IOT
+IOT_HOME=~/Audio/InOurTime
+IOT_DB="${IOT_ROOT}/iot.db"
+
+vs=($( ls -1rt ${IOT_HOME}/ | fzf -1 -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap ))
+
+if [[ ${#vs[@]} -gt 0 ]]
+then
+  vlc -I qt --qt-continue 2 --start-time=19 "${IOT_HOME}/${vs[0]}" &>/dev/null &
+fi
