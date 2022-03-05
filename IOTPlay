@@ -6,9 +6,41 @@ IOT_ROOT=~/bin/IOT
 IOT_HOME=~/Audio/InOurTime
 IOT_DB="${IOT_ROOT}/iot.db"
 
-vs=($( ls -1rt ${IOT_HOME}/ | fzf -1 -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap ))
+# vs=($( ls -1rt ${IOT_HOME}/ | fzf -1 -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap ))
 
-if [[ ${#vs[@]} -gt 0 ]]
+# find ${IOT_HOME} -type f \( -name '*.mp3' -o -name '*.phold' \) 
+pholds=()
+mp3s=()
+while read epi
+do
+
+  # CASE or HASH
+  if [[ "${epi}" =~ phold$ ]]
+  then
+    IFS=$'\n'
+      pholds+=( $( cat "${epi}" ) )
+    IFS=$' \t\n'
+  fi
+
+  if [[ "${epi}" =~ mp3$ ]]
+  then
+    IFS=$'\n'
+      mp3s+=( "${epi}" )
+    IFS=$' \t\n'
+  fi
+
+done <<<$( ls -1rt "${IOT_HOME}"/*.mp3 "${IOT_HOME}"/*.phold | fzf -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap )
+
+if [[ ${#pholds[*]} -gt 0 ]]
 then
-  vlc -I qt --qt-continue 2 --start-time=19 "${IOT_HOME}/${vs[0]}" &>/dev/null &
+  IFS=$'\n'
+    ${dryrun} firefox "${pholds[@]}" &>/dev/null &
+  IFS=$' \t\n'
+fi
+
+if [[ ${#mp3s[*]} -gt 0 ]]
+then
+  IFS=$'\n'
+    ${dryrun} vlc -I qt --qt-continue 2 --start-time=19 "${mp3s[@]}" &>/dev/null &
+  IFS=$' \t\n'
 fi
