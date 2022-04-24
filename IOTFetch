@@ -268,11 +268,9 @@ then
         # an eventual version will update the db maybe?
         echo -ne "MP3 Not Currently Available.  Saving Placeholder File\n" >&2
         ${dryrun} echo -ne "${epi_url}" >"${IOT_HOME}/InOurTime-${pub_date}-${exists}.phold"
-
-        exit 0
+      else
+        ${dryrun} curl -L -o "InOurTime-${pub_date}-${exists}.mp3" --progress-bar "${url}" # -L := allow redirects, -J := Content-Disposition filename 
       fi
-      ${dryrun} curl -L -o "InOurTime-${pub_date}-${exists}.mp3" --progress-bar "${url}" # -L := allow redirects, -J := Content-Disposition filename 
-
     ) 
  
   fi
