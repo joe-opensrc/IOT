@@ -136,7 +136,10 @@ function updateDB(){
   done
 
   #noddy backup of last db
-  gzip -c "${IOT_DB}" >"${IOT_BCK}/iotdb_$(date '+%Y%m%d_%H%M%S').bck"
+  bname="${IOT_BCK}/iotdb_bck_$(date '+%Y%m%d_%H%M%S').gz"
+
+  echo -ne "Backup of iot.db to ${bname}\n" >&2
+  gzip -c "${IOT_DB}" >"${bname}"
 
   # Membound...but we're looking and single-digit megabytes...besides BBC have broken it by removing downloads;
   # they appear to have moved it about internally after the podcast got "promoted".
