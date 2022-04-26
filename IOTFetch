@@ -249,7 +249,7 @@ esac
 choice=$( cat ${IOT_ROOT}/iot.db | fzf --no-hscroll -0 -1 -d'\|' -e +m +s --cycle --reverse -i --with-nth=${nth} --preview='echo -e \"{2}\\n{7}\" | fmt -w $(tput cols)' --preview-window='wrap' --bind='alt-j:preview-page-down,alt-k:preview-page-up' )
 
 name="$(         echo ${choice} | cut -d'|' -f 2 )"
-url="https://$(  echo ${choice} | cut -d'|' -f 6 )"
+url="$(          echo ${choice} | cut -d'|' -f 6 )"
 pub_date="$(     echo ${choice} | cut -d'|' -f 4  | cut -c 1-10 | tr -d '-' )"
 epi_url="$(      echo ${choice} | cut -d'|' -f 3 )" 
 
