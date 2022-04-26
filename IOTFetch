@@ -151,6 +151,8 @@ function updateDB(){
     IFS=$' \t\n'
   fi
 
+  echo -ne "Update...Finished\n" >&2
+
 }
 
 #          # new db line is the merging of the json and parsed output according to our pipe delimted format.
