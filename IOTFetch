@@ -268,7 +268,7 @@ then
 
     (
       cd ${IOT_HOME}
-      if [[ "${url}" == "https://NOTCURRENTLYAVAILABLE" ]]
+      if [[ "${url}" == "NOTCURRENTLYAVAILABLE" ]]
       then
         # an eventual version will update the db maybe?
         echo -ne "MP3 Not Currently Available.  Saving Placeholder File\n" >&2
