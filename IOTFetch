@@ -29,14 +29,10 @@ dryrun=""
 # parse json into iot-db
 # check last-db-id in parsed output
 
-tpf1=/tmp/bbc-iot-1.html
-
-tdb=$( mktemp )
 # get latest episode id from local iot.db
 epi_id_latest_db=$(head -n 1 "${IOT_DB}" | cut -d'|' -f 1 )
 
 tpf="/tmp/bbc-iot-1.html"
-tpfp="${tpf}.psv"
 
 # fs side-effect nightmare function :)
 function pageFetchParse(){
@@ -66,11 +62,14 @@ function pageFetchParse(){
 
 function checkIdInPage(){
 
-  local tpf="/tmp/bbc-iot-${2}.html"
+  local epi_id="${1}"
+  local page_id="${2}" 
+
+  local tpf="/tmp/bbc-iot-${page_id}.html"
   local tpfp="${tpf}.psv"
 
   # echo ${tpfp}
-  grep "^${1}" "${tpfp}" &>/dev/null
+  grep "^${epi_id}" "${tpfp}" &>/dev/null
   return $?
 
 }
@@ -80,6 +79,7 @@ function updateDB(){
 
   n=1
   # Must ask BBC first
+  local tpf="/tmp/bbc-iot-1.html"
   pageFetchParse 1 # creates files :S
   plast=$( grep 'pagination__page--last' -A 1 "${tpf}" | grep 'Page [0-9]\+' -o | cut -d' ' -f 2 )
 
@@ -155,90 +155,10 @@ function updateDB(){
 
 }
 
-#          # new db line is the merging of the json and parsed output according to our pipe delimted format.
-#          db_lines=$( join -t'|' <( echo -n "${rs_lines}") <( echo -n "${mp3_urls}" ) )
-
-#          # if not a full search; process the first page db lines;
-#          # otherwise fetch more episodes
-#          if [[ ${full} -ne 0 ]]        
-#          then
-
-#            # if the current page contains the last known id; don't fetch anymore pages
-#            echo "${db_lines}" | grep "${epi_id_latest_db}" &>/dev/null
-#            if [[ $? -eq 0 ]]
-#            then
-
-#              IFS=$'\n'
-#              #for each epi we're updating: download epi page and extract long description join to existing db entry
-#              for epi in ${db_lines}
-#              do 
-
-#                # episode id 
-#                eid=$( echo "${epi}" | cut -d'|' -f 1 )
-
-#                # extract / filter only those we haven't yet seen
-#                if [[ "${eid}" != "${epi_id_latest_db}" ]]
-#                then 
-
-#                  # fetch long desc and put into tmp db of updates
-#                  title=$( echo "${epi}" | cut -d'|' -f 2 )
-#                    url=$( echo "${epi}" | cut -d'|' -f 3 )
-                  
-#                  desc_long="$( wget -q -O- ${url} | grep 'synopsis-toggle__long' -A 1 | sed -rne 's|.*?<p>(.*?)</p>|\1| p' )"
-
-#                  new_db_ent="$( join -t'|' <( echo -n "${epi}" ) <( echo -n "$eid|${desc_long}" ) )"
-
-#                  echo "${eid}|${title}"
-#                  echo "${new_db_ent}" >>"${tdb}"
-
-#                else
-#                  # ordered data allows us to stop processing episodes here
-#                  # as the latest episode id has already been seen 
-#                  break
-#                fi
-#              done
-#              IFS=$' \t\n'
-              
-#              # stop processing pages   
-#              break
-
-#            fi
-#          fi
-
-#          # cycle round to fetch more episodes
-#          # pause so as not to hammer the website ;)
-#          sleep 1
-  
-#        else 
-#          echo -ne "\nSomething Bad With Get Page :(\n\n"
-#          exit 1
-#        fi
-
-#      done
-      
-#    fi
- 
-#  fi
-
-#  # tdb either contains all entries, having scanned full site
-#  # or full pages upto that which contains the most recent entry from the db
-#  # dont merge yet; act on tdb
-
-#  #noddy backup of last db
-#  gzip -c "${IOT_DB}" >"${IOT_BCK}/iotdb_$(date '+%Y%m%d_%H%M%S').bck"
-
-#  #merge new list with existing
-#  tdb2="$( mktemp )"
-#  diff --line-format='%L' "${tdb}" "${IOT_DB}" >"${tdb2}"
-
-#  #replace existing
-#  mv "${tdb2}" "${IOT_DB}"
-#}
-
-
-  ## args -- simple parsing 
-  ## -u := update the database
-  ## -d := supply the episode description to the fzf filter
+## -B := don't backup the db; #YOLO.
+## -u := update the database
+## -d := supply the episode description to the fzf filter
+## -n := dry run
 nth="2"
 case "${1}" in
   -u) updateDB ${2}; exit 0;;
