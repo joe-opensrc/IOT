@@ -17,17 +17,11 @@ IOT_HOME=~/Audio/InOurTime
 IOT_BCK="${IOT_ROOT}/bck"
 # podcast home page
 IOT_URI="https://www.bbc.co.uk/programmes/b006qykl/episodes/player"
-#EPI_URI="https://open.live.bbc.co.uk/mediaselector/6/redir/version/2.0/mediaset/audio-nondrm-download/proto/https/vpid"
 # our InOurTime Database
 IOT_DB="${IOT_ROOT}/iot.db"
 
 # echo command instead of running it
 dryrun=""
-
-## 
-# get page
-# parse json into iot-db
-# check last-db-id in parsed output
 
 # get latest episode id from local iot.db
 epi_id_latest_db=$(head -n 1 "${IOT_DB}" | cut -d'|' -f 1 )
@@ -52,14 +46,6 @@ function pageFetchParse(){
 
 }
 
-# function epiPageFetchParse(){
-#   local tef="/tmp/bbc-iot-epi-${1}.html"
-#   local tefp="${tef}.psv"
-
-#   wget -q -O${tef}  
- 
-# }
-
 function checkIdInPage(){
 
   local epi_id="${1}"
@@ -75,7 +61,6 @@ function checkIdInPage(){
 }
 
 function updateDB(){
-
 
   n=1
   # Must ask BBC first
