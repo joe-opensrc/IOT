@@ -6,6 +6,15 @@ IOT_ROOT=~/bin/IOT
 IOT_HOME=~/Audio/InOurTime
 IOT_DB="${IOT_ROOT}/iot.db"
 
+OPTIND=
+while getopts 'm:' flag
+do
+  case "${flag}" in
+    m) IOT_HOME="${OPTARG}";;
+  esac
+  shift $(( ${OPTIND} - 1 ))
+done
+
 # vs=($( ls -1rt ${IOT_HOME}/ | fzf -1 -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap ))
 
 # find ${IOT_HOME} -type f \( -name '*.mp3' -o -name '*.phold' \) 
