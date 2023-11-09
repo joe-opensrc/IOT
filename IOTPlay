@@ -5,11 +5,13 @@
 IOT_ROOT=~/bin/IOT
 IOT_HOME=~/Audio/InOurTime
 IOT_DB="${IOT_ROOT}/iot.db"
+listFiles=1
 
 OPTIND=
-while getopts 'm:' flag
+while getopts 'lm:' flag
 do
   case "${flag}" in
+    l) echo "${IOT_HOME}" >&2; ls -1 ${IOT_HOME}; exit 0;;
     m) IOT_HOME="${OPTARG}";;
   esac
   shift $(( ${OPTIND} - 1 ))
