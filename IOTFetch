@@ -152,14 +152,15 @@ function updateDB(){
 ## -n := dry run
 nth="2"
 do_backup=1
-OPTIND=
-while getopts 'Bdnu' flag
+OPTIND=a
+while getopts 'Bdpnu' flag
 do
   case "${flag}" in
      u) updateDB; exit 0;; # ${OPTARG}; exit 0;; 
      d) nth="2,7";;
      n) dryrun="echo ";;
      B) do_backup=0;;
+     p) IOTPlay;; 
     \?) echo "ARGS!" >&2; exit 1;;
     \:) echo "EGG" >&2; exit 1;;
   esac
