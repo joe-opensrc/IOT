@@ -146,16 +146,25 @@ function updateDB(){
 
 }
 
-## -B := don't backup the db; #YOLO.
+## -B := do backup the db; #YOLO.
 ## -u := update the database
 ## -d := supply the episode description to the fzf filter
 ## -n := dry run
 nth="2"
-case "${1}" in
-  -u) updateDB ${2}; exit 0;;
-  -d) nth="2,7";;
-  -n) dryrun="echo ";;
-esac
+do_backup=1
+OPTIND=
+while getopts 'Bdnu' flag
+do
+  case "${flag}" in
+     u) updateDB; exit 0;; # ${OPTARG}; exit 0;; 
+     d) nth="2,7";;
+     n) dryrun="echo ";;
+     B) do_backup=0;;
+    \?) echo "ARGS!" >&2; exit 1;;
+    \:) echo "EGG" >&2; exit 1;;
+  esac
+  shift $(( ${OPTIND} - 1 ))
+done
 
 choice=$( cat ${IOT_ROOT}/iot.db | fzf --no-hscroll -0 -1 -d'\|' -e +m +s --cycle --reverse -i --with-nth=${nth} --preview='echo -e \"{2}\\n{7}\\n{6}\" | fmt -w $(tput cols)' --preview-window='wrap' --bind='alt-j:preview-page-down,alt-k:preview-page-up' )
 
