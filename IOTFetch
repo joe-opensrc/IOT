@@ -20,18 +20,20 @@ IOT_URI="https://www.bbc.co.uk/programmes/b006qykl/episodes/player"
 # our InOurTime Database
 IOT_DB="${IOT_ROOT}/iot.db"
 
+IOT_TDIR="/var/tmp/iot/fetch"
+
 # echo command instead of running it
 dryrun=""
 
 # get latest episode id from local iot.db
 epi_id_latest_db=$(head -n 1 "${IOT_DB}" | cut -d'|' -f 1 )
 
-tpf="/tmp/bbc-iot-1.html"
+tpf="${IOT_TDIR}/bbc-iot-1.html"
 
 # fs side-effect nightmare function :)
 function pageFetchParse(){
 
-  local tpf="/tmp/bbc-iot-${1}.html"
+  local tpf="${IOT_TDIR}/bbc-iot-${1}.html"
   local tpfp="${tpf}.psv"
 
   if [[ -e "${tpf}" ]]
@@ -39,6 +41,7 @@ function pageFetchParse(){
     echo "Existing file: ${tpf}" >&2
   else
     echo "Fetching page-${n} from BBC" >&2
+    mkdir -p "${IOT_TDIR}" 2>/dev/null
     wget -q -O${tpf} "${IOT_URI}?page=${n}" 
   fi
 
@@ -51,7 +54,7 @@ function checkIdInPage(){
   local epi_id="${1}"
   local page_id="${2}" 
 
-  local tpf="/tmp/bbc-iot-${page_id}.html"
+  local tpf="${IOT_TDIR}/bbc-iot-${page_id}.html"
   local tpfp="${tpf}.psv"
 
   # echo ${tpfp}
@@ -64,8 +67,8 @@ function updateDB(){
 
   n=1
   # Must ask BBC first
-  local tpf="/tmp/bbc-iot-1.html"
-  pageFetchParse 1 # creates files :S
+  local tpf="${IOT_TDIR}/bbc-iot-1.html"
+  pageFetchParse 1 0 # creates files :S # ${2}==0 forces
   plast=$( grep 'pagination__page--last' -A 1 "${tpf}" | grep 'Page [0-9]\+' -o | cut -d' ' -f 2 )
 
   checkIdInPage ${epi_id_latest_db} ${n} 
@@ -85,14 +88,14 @@ function updateDB(){
   do
 
     IFS=$'\n'
-    for p in $( cat "/tmp/bbc-iot-${x}.html.psv" )
+    for p in $( cat "${IOT_TDIR}/bbc-iot-${x}.html.psv" )
     do  
       id=$(echo "${p}" | cut -d'|' -f 1 )
       if [[ ${id} != ${epi_id_latest_db} ]]
       then
         url=$( echo "${p}" | cut -d'|' -f 3 )
         # echo "URL: ${url}" >&2
-        epifile="/tmp/bbc-iot-epi-${id}.html"
+        epifile="${IOT_TDIR}/bbc-iot-epi-${id}.html"
         if [[ -e "${epifile}" ]]
         then
           echo "Existing epi file: ${epifile}" >&2
