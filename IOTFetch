@@ -132,7 +132,7 @@ function updateDB(){
     gzip -c "${IOT_DB}" >"${bname}"
   fi
 
-  # Membound...but we're looking and single-digit megabytes...besides BBC have broken it by removing downloads;
+  # Membound...but we're looking at single-digit megabytes...besides BBC have broken it by removing downloads;
   # they appear to have moved it about internally after the podcast got "promoted".
   if [[ ${#new_db_ents[*]} -gt 0 ]]
   then
