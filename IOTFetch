@@ -36,7 +36,7 @@ function pageFetchParse(){
   local tpf="${IOT_TDIR}/bbc-iot-${1}.html"
   local tpfp="${tpf}.psv"
 
-  if [[ -e "${tpf}" ]]
+  if [[ ${2} -ne 0 && -e "${tpf}" ]]
   then
     echo "Existing file: ${tpf}" >&2
   else
