@@ -6,15 +6,15 @@ A script suite to parse / download / play episodes from the public InOurTime Pod
 
 Files:
   - IOT:
-      supports:
+     - supports:
         - Fetch files (or url placeholders) 
         - update iot.db
         - play via '-p' command line arg (which currently invokes IOTPlay)
   - IOTPlay:
-        - Simple selection of downloaded files or placeholders:
-            - uses vlc for mp3s
-            - uses firefox for urls / pholds
-            - [ currently being merged into one script; sloth is the... ]
+      - Simple selection of downloaded files or placeholders:
+        - uses vlc for mp3s
+        - uses firefox for urls / pholds
+      - [ currently being merged into one script; converge(min(keystroke))... ]
   - README.md:
       - this file :)
   - iot.db:
