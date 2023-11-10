@@ -5,13 +5,16 @@ In Our Time Podcast CLI Script Suite (v0.2)
 A script suite to parse / download / play episodes from the public InOurTime Podcast Website.
 
 Files:
-  - IOTFetch: 
-      - Fetch files (or url placeholders) 
-      - update iot.db 
+  - IOT:
+      supports:
+        - Fetch files (or url placeholders) 
+        - update iot.db
+        - play via '-p' command line arg (which currently invokes IOTPlay)
   - IOTPlay:
-      - Simple selection of downloaded files or placeholders:
-          - uses vlc for mp3s
-          - uses firefox for urls / pholds
+        - Simple selection of downloaded files or placeholders:
+            - uses vlc for mp3s
+            - uses firefox for urls / pholds
+            - [ currently being merged into one script; sloth is the... ]
   - README.md:
       - this file :)
   - iot.db:
@@ -35,24 +38,24 @@ Dependencies:
 
 #### Fetch an episode
 ```bash
-user@host> IOTFetch 
+user@host> IOT 
 ```
 #### Fetch an episode and include episode description in fzf list (helps with searching) 
 ```bash
-user@host> IOTFetch -d
+user@host> IOT -d
 ```
 #### Incremental update of iot.db 
 ```bash
-user@host> IOTFetch -u 
+user@host> IOT -u 
 ```
 #### Full update of iot.db (should be used sparingly) (NOT WORKING)
 ```bash
-user@host> IOTFetch -u 0
+user@host> IOT -u 0
 ```
 
 #### Play an episode with vlc
 ```bash
-user@host> IOTPLay
+user@host> IOT -p
 ```
 
 TODO:
