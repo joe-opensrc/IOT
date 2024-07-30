@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Simple version...
 
@@ -19,7 +19,7 @@ done
 
 # vs=($( ls -1rt ${IOT_HOME}/ | fzf -1 -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap ))
 
-# find ${IOT_HOME} -type f \( -name '*.mp3' -o -name '*.phold' \) 
+# find ${IOT_HOME} -type f \( -name '*.mp3' -o -name '*.phold' \)
 pholds=()
 mp3s=()
 while read epi
