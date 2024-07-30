@@ -188,7 +188,7 @@ then
   else
 
     (
-      cd ${IOT_HOME}
+      cd ${IOT_ROOT}
       if [[ "${url}" == "NOTCURRENTLYAVAILABLE" ]]
       then
         # an eventual version will update the db maybe?
