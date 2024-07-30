@@ -2,8 +2,8 @@
 
 # Simple version...
 
-IOT_ROOT=~/bin/IOT
-IOT_HOME=~/Audio/InOurTime
+IOT_ROOT="$(dirname ${0})" # ~/bin/IOT
+IOT_HOME="${IOT_ROOT}/files"
 IOT_DB="${IOT_ROOT}/iot.db"
 listFiles=1
 
