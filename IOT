@@ -1,6 +1,6 @@
-#!/bin/bash 
+#!/bin/bash
 
-### update function uses 'Page x of n' and arithmetic to keep update requests low.; 
+### update function uses 'Page x of n' and arithmetic to keep update requests low.;
 ### date from json appears to be incorrect in at least one case (TristanAndIseult)
 ### all functions and loops assume ordered data; i.e., the web pages provide the order (newest to oldest),
 ### and the db reflects that.  If order changes then all bets are off. (hashes are complicated; I can't be bothered here ;))
@@ -10,9 +10,9 @@
 ### in order to limit the number of requests to the BBC site, we try and limt updates up-to the page which contains the last known episode.
 
 # base of operation
-IOT_ROOT=~/bin/IOT  
+IOT_ROOT="$(dirname ${0})" # ~/bin/IOT
 # example location to store episodes
-IOT_HOME=~/Audio/InOurTime
+IOT_HOME="${IOT_ROOT}/files"
 # a place where we put a simple backup of existing iot.db
 IOT_BCK="${IOT_ROOT}/bck"
 # podcast home page
@@ -42,17 +42,17 @@ function pageFetchParse(){
   else
     echo "Fetching page-${n} from BBC" >&2
     mkdir -p "${IOT_TDIR}" 2>/dev/null
-    wget -q -O${tpf} "${IOT_URI}?page=${n}" 
+    wget -q -O${tpf} "${IOT_URI}?page=${n}"
   fi
 
-  cat "${tpf}" | grep 'RadioSeries' | jq -jc '.episode[] as $epi | $epi.identifier, "|", $epi.name, "|", $epi.url, "|", $epi.publication.startDate, "|", $epi.description, "\n"' >"${tpfp}"  
+  cat "${tpf}" | grep 'RadioSeries' | jq -jc '.episode[] as $epi | $epi.identifier, "|", $epi.name, "|", $epi.url, "|", $epi.publication.startDate, "|", $epi.description, "\n"' >"${tpfp}"
 
 }
 
 function checkIdInPage(){
 
   local epi_id="${1}"
-  local page_id="${2}" 
+  local page_id="${2}"
 
   local tpf="${IOT_TDIR}/bbc-iot-${page_id}.html"
   local tpfp="${tpf}.psv"
@@ -71,16 +71,16 @@ function updateDB(){
   pageFetchParse 1 0 # creates files :S # ${2}==0 forces
   plast=$( grep 'pagination__page--last' -A 1 "${tpf}" | grep 'Page [0-9]\+' -o | cut -d' ' -f 2 )
 
-  checkIdInPage ${epi_id_latest_db} ${n} 
+  checkIdInPage ${epi_id_latest_db} ${n}
   # compare the latest known episode id from the db, with the site
   until [[ $? -eq 0 || ${n} -ge ${plast} ]]
   do
-    (( n++ )) 
+    (( n++ ))
     sleep 1
     pageFetchParse ${n}
-    checkIdInPage ${epi_id_latest_db} ${n} 
-    
-  done 
+    checkIdInPage ${epi_id_latest_db} ${n}
+
+  done
 
   new_db_ents=()
   x=1
@@ -89,7 +89,7 @@ function updateDB(){
 
     IFS=$'\n'
     for p in $( cat "${IOT_TDIR}/bbc-iot-${x}.html.psv" )
-    do  
+    do
       id=$(echo "${p}" | cut -d'|' -f 1 )
       if [[ ${id} != ${epi_id_latest_db} ]]
       then
@@ -103,7 +103,7 @@ function updateDB(){
           echo "Fetching epi site: ${url}" >&2
           wget -q -O"${epifile}" "${url}"
         fi
-      
+
         # mp3 urls are not kept in the json object; so we parse the page
         id_mp3_url="$( grep 'open\.live' -A 1 ${epifile} | grep -v 'download-low' | sed -nre '/open\.live/ N; s/\n/ /; s/.*href="\/\/(.*?\.mp3).*?- ([a-z0-9]+)\.mp3.*/\2|https\:\/\/\1/ p' )"
 
@@ -111,10 +111,10 @@ function updateDB(){
         additional_fields="$( join -t'|' <( echo -ne "${id_mp3_url:-${id}|NOTCURRENTLYAVAILABLE}" ) <( echo -ne "${id}|${desc_long}" ) )"
 
         new_db_ents+=( "$( join -t'|' <( echo ${p} ) <( echo -ne ${additional_fields} ) )" )
-        
+
       else
         break
-      fi 
+      fi
 
     done
     IFS=$' \t\n'
@@ -156,11 +156,11 @@ OPTIND=a
 while getopts 'Bdpnu' flag
 do
   case "${flag}" in
-     u) updateDB; exit 0;; # ${OPTARG}; exit 0;; 
+     u) updateDB; exit 0;; # ${OPTARG}; exit 0;;
      d) nth="2,7";;
      n) dryrun="echo ";;
      B) do_backup=0;;
-     p) IOTPlay;; 
+     p) IOTPlay; exit;;
     \?) echo "ARGS!" >&2; exit 1;;
     \:) echo "EGG" >&2; exit 1;;
   esac
@@ -172,7 +172,7 @@ choice=$( cat ${IOT_ROOT}/iot.db | fzf --no-hscroll -0 -1 -d'\|' -e +m +s --cycl
 name="$(         echo ${choice} | cut -d'|' -f 2 )"
 url="$(          echo ${choice} | cut -d'|' -f 6 )"
 pub_date="$(     echo ${choice} | cut -d'|' -f 4  | cut -c 1-10 | tr -d '-' )"
-epi_url="$(      echo ${choice} | cut -d'|' -f 3 )" 
+epi_url="$(      echo ${choice} | cut -d'|' -f 3 )"
 
 if [[ -n "${name}" ]]
 then
@@ -195,10 +195,10 @@ then
         echo -ne "MP3 Not Currently Available.  Saving Placeholder File\n" >&2
         ${dryrun} echo -ne "${epi_url}" >"${IOT_HOME}/InOurTime-${pub_date}-${exists}.phold"
       else
-        ${dryrun} curl -L -o "InOurTime-${pub_date}-${exists}.mp3" --progress-bar "${url}" # -L := allow redirects, -J := Content-Disposition filename 
+        ${dryrun} curl -L -o "InOurTime-${pub_date}-${exists}.mp3" --progress-bar "${url}" # -L := allow redirects, -J := Content-Disposition filename
       fi
-    ) 
- 
+    )
+
   fi
 
 else
