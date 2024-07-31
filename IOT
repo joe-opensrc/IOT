@@ -103,6 +103,7 @@ function updateDB(){
         else
           echo "Fetching epi site: ${url}" >&2
           wget -q -O"${epifile}" "${url}"
+          sleep 0.5
         fi
 
         # mp3 urls are not kept in the json object; so we parse the page
