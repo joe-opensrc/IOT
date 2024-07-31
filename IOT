@@ -186,16 +186,16 @@ then
 
   if [[ $? -eq 0 ]]
   then
-      echo "File Appears To Already Exist: $( basename ${f} )"
+      echo -ne "File Appears To Already Exist:\n ${IOT_HOME}/$( basename ${f} )\n"
   else
 
     (
-      cd ${IOT_ROOT}
+      cd ${IOT_HOME}
       if [[ "${url}" == "NOTCURRENTLYAVAILABLE" ]]
       then
         # an eventual version will update the db maybe?
         echo -ne "MP3 Not Currently Available.  Saving Placeholder File\n" >&2
-        ${dryrun} echo -ne "${epi_url}" >"${IOT_HOME}/InOurTime-${pub_date}-${exists}.phold"
+        ${dryrun} echo -ne "${epi_url}" >"InOurTime-${pub_date}-${exists}.phold"
       else
         ${dryrun} curl -L -o "InOurTime-${pub_date}-${exists}.mp3" --progress-bar "${url}" # -L := allow redirects, -J := Content-Disposition filename
       fi
