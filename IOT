@@ -155,6 +155,7 @@ function updateDB(){
 ## -n := dry run
 nth="2"
 do_backup=1
+useYtdlp=1
 OPTIND=a
 while getopts 'BYdpnu' flag
 do
@@ -164,7 +165,7 @@ do
      n) dryrun="echo ";;
      B) do_backup=0;;
      p) IOTPlay; exit;;
-     Y) tryYTDLP=0;;
+     Y) useYtdlp=0;;
     \?) echo "ARGS!" >&2; exit 1;;
     \:) echo "EGG" >&2; exit 1;;
   esac
