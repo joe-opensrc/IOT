@@ -172,7 +172,7 @@ do
   shift $(( ${OPTIND} - 1 ))
 done
 
-choice=$( cat ${IOT_ROOT}/iot.db | fzf --no-hscroll -0 -1 -d'\|' -e +m +s --cycle --reverse -i --with-nth=${nth} --preview='echo -e \"{2}\\n{7}\\n{6}\" | fmt -w $(tput cols)' --preview-window='wrap' --bind='alt-j:preview-page-down,alt-k:preview-page-up' )
+choice=$( cat ${IOT_ROOT}/iot.db | fzf -q "${1:-}" --no-hscroll -0 -1 -d'\|' -e +m +s --cycle --reverse -i --with-nth=${nth} --preview='echo -e \"{2}\\n{7}\\n{6}\" | fmt -w $(tput cols)' --preview-window='wrap' --bind='alt-j:preview-page-down,alt-k:preview-page-up' )
 
 name="$(         echo ${choice} | cut -d'|' -f 2 )"
 url="$(          echo ${choice} | cut -d'|' -f 6 )"
@@ -197,8 +197,17 @@ then
       if [[ "${url}" == "NOTCURRENTLYAVAILABLE" ]]
       then
         # an eventual version will update the db maybe?
-        echo -ne "MP3 Not Currently Available.  Saving Placeholder File\n" >&2
-        ${dryrun} echo -ne "${epi_url}" >"InOurTime-${pub_date}-${exists}.phold"
+        echo -ne "MP3 Not Currently Available. Saving Placeholder File\n" >&2
+        pholdFile="InOurTime-${pub_date}-${exists}.phold"
+        ${dryrun} echo -ne "${epi_url}" >"${pholdFile}"
+        if [[ ${useYtdlp} -eq 0 ]]
+        then
+          echo -ne "Going to try yt-dlp..." >&2
+          ${dryrun} source ~/pyvirts/ytd/bin/activate 
+          eff=$( ${dryrun} yt-dlp -F "${epi_url}" | grep 'audio only' | fzf --tac | awk_field_slicer -o1 )
+          ${dryrun} yt-dlp -N 4 -P "${IOT_HOME}/" -f "${eff}" "${epi_url}"
+          ${dryrun} deactivate
+        fi
       else
         ${dryrun} curl -L -o "InOurTime-${pub_date}-${exists}.mp3" --progress-bar "${url}" # -L := allow redirects, -J := Content-Disposition filename
       fi
