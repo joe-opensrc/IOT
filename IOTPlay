@@ -33,14 +33,14 @@ do
     IFS=$' \t\n'
   fi
 
-  if [[ "${epi}" =~ mp3$ ]]
+  if [[ "${epi}" =~ mp[34]$ ]]
   then
     IFS=$'\n'
       mp3s+=( "${epi}" )
     IFS=$' \t\n'
   fi
 
-done <<<$( ls -1rt "${IOT_HOME}"/*.mp3 "${IOT_HOME}"/*.phold | fzf -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap )
+done <<<$( ls -1rt "${IOT_HOME}"/*.mp* "${IOT_HOME}"/*.phold | fzf -e -m +s --cycle --tac --reverse +i --bind alt-space:toggle-all,alt-x:select-all --preview-window=wrap )
 
 if [[ ${#pholds[*]} -gt 0 ]]
 then
