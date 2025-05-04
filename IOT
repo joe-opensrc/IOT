@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 ### update function uses 'Page x of n' and arithmetic to keep update requests low.;
 ### date from json appears to be incorrect in at least one case (TristanAndIseult)
@@ -172,7 +172,7 @@ do
   shift $(( ${OPTIND} - 1 ))
 done
 
-choice=$( cat ${IOT_ROOT}/iot.db | fzf -q "${1:-}" --no-hscroll -0 -1 -d'\|' -e +m +s --cycle --reverse -i --with-nth=${nth} --preview='echo -e \"{2}\\n{7}\\n{6}\" | fmt -w $(tput cols)' --preview-window='wrap' --bind='alt-j:preview-page-down,alt-k:preview-page-up' )
+choice=$( cat ${IOT_ROOT}/iot.db | fzf --no-hscroll -1 -d'\|' -e +m +s --cycle --reverse -i --with-nth=${nth} --preview='echo -e \"{2}\\n{7}\\n{6}\" | fmt -w $(tput cols)' --preview-window='wrap' --bind='alt-j:preview-page-down,alt-k:preview-page-up' )
 
 name="$(         echo ${choice} | cut -d'|' -f 2 )"
 url="$(          echo ${choice} | cut -d'|' -f 6 )"
@@ -184,7 +184,7 @@ then
   echo "Trying: ${name}" >&2
   name=$( echo "${name}" | tr -d "'" )
   exists="$( for x in ${name}; do echo -n "${x^}"; done )"
-
+  echo "${exists}" >&2
   f="$( ls -1 ${IOT_HOME}/InOurTime-*${exists}* 2>/dev/null  )"
 
   if [[ $? -eq 0 ]]
@@ -196,17 +196,27 @@ then
       cd ${IOT_HOME}
       if [[ "${url}" == "NOTCURRENTLYAVAILABLE" ]]
       then
-        # an eventual version will update the db maybe?
-        echo -ne "MP3 Not Currently Available. Saving Placeholder File\n" >&2
-        pholdFile="InOurTime-${pub_date}-${exists}.phold"
-        ${dryrun} echo -ne "${epi_url}" >"${pholdFile}"
         if [[ ${useYtdlp} -eq 0 ]]
         then
+          # make plugin
+          IOT_PVIRT_YTD="${IOT_ROOT}/pyvirts/ytd"
           echo -ne "Going to try yt-dlp..." >&2
-          ${dryrun} source ~/pyvirts/ytd/bin/activate 
+          if [[ ! -d "${IOT_PVIRT_YTD}" ]]
+          then
+            ${dryrun} python -mvenv --copies "${IOT_PVIRT_YTD}"
+            ${dryrun} source "${IOT_PVIRT_YTD}/bin/activate"
+            ${dryrun} pip install yt-dlp
+          else
+            ${dryrun} source "${IOT_PVIRT_YTD}/bin/activate" 
+          fi
           eff=$( ${dryrun} yt-dlp -F "${epi_url}" | grep 'audio only' | fzf --tac | awk_field_slicer -o1 )
           ${dryrun} yt-dlp -N 4 -P "${IOT_HOME}/" -f "${eff}" "${epi_url}"
           ${dryrun} deactivate
+        else
+          # an eventual version will update the db maybe?
+          echo -ne "MP3 not directly available with this script. Saving Placeholder File\n" >&2
+          pholdFile="InOurTime-${pub_date}-${exists}.phold"
+          ${dryrun} echo -ne "${epi_url}" >"${pholdFile}"
         fi
       else
         ${dryrun} curl -L -o "InOurTime-${pub_date}-${exists}.mp3" --progress-bar "${url}" # -L := allow redirects, -J := Content-Disposition filename
